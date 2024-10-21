@@ -22,7 +22,7 @@ const AddProduct = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Product added:', data);
-      navigate('/');
+      navigate('/view');
     })
     .catch(error => {
       console.error('There was an error adding the product!', error);

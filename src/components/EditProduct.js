@@ -30,7 +30,7 @@ const EditProduct = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Product updated:', data);
-      navigate('/');
+      navigate('/view');
     })
     .catch(error => {
       console.error('There was an error updating the product!', error);
