@@ -1,4 +1,3 @@
-// src/components/ViewProduct.js
 import React, { useEffect, useState } from 'react';
 import { Form, ListGroup, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';

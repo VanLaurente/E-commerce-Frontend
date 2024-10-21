@@ -1,15 +1,13 @@
-// src/components/EditProduct.js
 import React, { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const EditProduct = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook to navigate
+  const navigate = useNavigate(); 
   const [product, setProduct] = useState({ barcode: '', description: '', price: '', quantity: '', category: '' });
 
   useEffect(() => {
-    // Fetch the product details using the id and set the product state
     fetch(`http://127.0.0.1:8000/api/products/${id}`)
       .then(response => response.json())
       .then(data => setProduct(data))
@@ -32,7 +30,7 @@ const EditProduct = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Product updated:', data);
-      navigate('/'); // Redirect to ViewProduct after updating
+      navigate('/');
     })
     .catch(error => {
       console.error('There was an error updating the product!', error);

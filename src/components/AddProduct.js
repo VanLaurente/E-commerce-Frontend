@@ -1,11 +1,10 @@
-// src/components/AddProduct.js
 import React, { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 const AddProduct = () => {
   const [product, setProduct] = useState({ barcode: '', description: '', price: '', quantity: '', category: '' });
-  const navigate = useNavigate(); // Hook to navigate
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
@@ -23,7 +22,7 @@ const AddProduct = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Product added:', data);
-      navigate('/'); // Redirect to ViewProduct after adding
+      navigate('/');
     })
     .catch(error => {
       console.error('There was an error adding the product!', error);
