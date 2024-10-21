@@ -94,7 +94,7 @@ const ViewProduct = () => {
       <ListGroup>
         {filteredProducts.map(product => (
           <ListGroup.Item key={product.id}>
-            {product.description} - ${product.price}
+            {product.description} - ₱{product.price}
             <Button variant="info" onClick={() => navigate(`/edit/${product.id}`)}>Edit</Button>
             <Button variant="danger" onClick={() => handleDelete(product.id)} className="ms-2">Delete</Button>
           </ListGroup.Item>
