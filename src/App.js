@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AddProduct from './components/AddProduct';
+import EditProduct from './components/EditProduct';
+import DeleteProduct from './components/DeleteProduct';
+import ViewProduct from './components/ViewProduct';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/add" element={<AddProduct />} />
+                <Route path="/edit/:id" element={<EditProduct />} />
+                <Route path="/delete/:id" element={<DeleteProduct />} />
+                <Route path="/view" element={<ViewProduct />} />
+                <Route path="/" element={<ViewProduct />} /> {/* Default route */}
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
