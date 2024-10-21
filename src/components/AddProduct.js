@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Container, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import logo from '../logo/logo.png'; // Ensure the path is correct
+import logo from '../logo/logo.png';
 
 const AddProduct = () => {
   const [product, setProduct] = useState({
@@ -67,7 +67,6 @@ const AddProduct = () => {
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
-        {/* Barcode Card */}
         <Card className="mb-3" style={{ padding: '20px' }}>
           <Form.Group controlId="formBarcode">
             <Form.Label>Barcode</Form.Label>
@@ -81,7 +80,6 @@ const AddProduct = () => {
           </Form.Group>
         </Card>
 
-        {/* Description Card */}
         <Card className="mb-3" style={{ padding: '20px' }}>
           <Form.Group controlId="formDescription">
             <Form.Label>Description</Form.Label>
@@ -95,7 +93,6 @@ const AddProduct = () => {
           </Form.Group>
         </Card>
 
-        {/* Price Card */}
         <Card className="mb-3" style={{ padding: '20px' }}>
           <Form.Group controlId="formPrice">
             <Form.Label>Price</Form.Label>
@@ -109,7 +106,6 @@ const AddProduct = () => {
           </Form.Group>
         </Card>
 
-        {/* Quantity Card */}
         <Card className="mb-3" style={{ padding: '20px' }}>
           <Form.Group controlId="formQuantity">
             <Form.Label>Quantity</Form.Label>
@@ -123,7 +119,6 @@ const AddProduct = () => {
           </Form.Group>
         </Card>
 
-        {/* Category Card */}
         <Card className="mb-4" style={{ padding: '20px' }}>
           <Form.Group controlId="formCategory">
             <Form.Label>Category</Form.Label>

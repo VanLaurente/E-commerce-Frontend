@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Container, Card, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
-import logo from '../logo/logo.png'; // Ensure the path is correct
+import logo from '../logo/logo.png';
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -55,7 +55,6 @@ const EditProduct = () => {
         setSuccessMessage('Product updated successfully!');
         setErrorMessage('');
 
-        // Navigate to the product view page after a short delay
         setTimeout(() => navigate('/view'), 1500);
       })
       .catch(error => {
