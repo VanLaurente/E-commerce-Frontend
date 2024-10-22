@@ -29,9 +29,18 @@ const AddProduct = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isDuplicate = products.some(p => p.barcode === product.barcode);
-    if (isDuplicate) {
+
+    // Check for duplicate barcode
+    const isBarcodeDuplicate = products.some(p => p.barcode === product.barcode);
+    if (isBarcodeDuplicate) {
       setErrorMessage('Barcode already exists. Please use a unique barcode.');
+      return;
+    }
+
+    // Check for duplicate description
+    const isDescriptionDuplicate = products.some(p => p.description.toLowerCase() === product.description.toLowerCase());
+    if (isDescriptionDuplicate) {
+      setErrorMessage('Description already exists. Please use a unique description.');
       return;
     }
 
