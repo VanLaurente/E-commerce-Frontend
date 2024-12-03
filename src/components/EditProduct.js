@@ -63,6 +63,10 @@ const EditProduct = () => {
       });
   };
 
+  const handleCancel = () => {
+    navigate('/view'); // Redirect to ViewProduct
+  };
+
   return (
     <Container
       fluid
@@ -77,7 +81,6 @@ const EditProduct = () => {
 
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
-
 
         <Card className="mb-3" style={{ padding: '20px' }}>
           <Form.Group controlId="formBarcode">
@@ -152,6 +155,16 @@ const EditProduct = () => {
           onClick={handleSubmit}
         >
           Update Product
+        </Button>
+
+        {/* Cancel Button */}
+        <Button
+          variant="secondary"
+          className="w-100 mt-2"
+          style={{ borderRadius: '25px' }}
+          onClick={handleCancel}
+        >
+          Cancel
         </Button>
       </Card>
     </Container>

@@ -26,10 +26,8 @@ const ViewProduct = () => {
   };
 
   useEffect(() => {
-    
     fetchData();
-
-    timerID.current = setInterval(fetchData, 1000);
+    timerID.current = setInterval(fetchData, 3000);
     return () => {
       clearInterval(timerID.current);
     };
@@ -62,7 +60,7 @@ const ViewProduct = () => {
     }
   }, [searchTerm, filteredProducts]);
 
-  //delete button
+  // Delete button
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       fetch(`http://127.0.0.1:8000/api/products/${id}`, {
@@ -82,16 +80,18 @@ const ViewProduct = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn'); 
+    navigate('/'); 
+  };
+
   return (
     <Container fluid style={{ background: '#FF9500', padding: '20px', height: '100vh' }}>
-      <Row
-        className="mb-3"
-        style={{ background: 'white', padding: '20px', marginLeft: '1px', marginRight: '1px', borderRadius: '8px' }}
-      >
+      <Row className="mb-3" style={{ background: 'white', padding: '20px', borderRadius: '8px' }}>
         <Col md={2} style={{ display: 'flex', alignItems: 'center' }}>
           <img src={logo} alt="Logo" style={{ width: '250px', height: 'auto' }} />
         </Col>
-        <Col md={10}>
+        <Col md={8} style={{ display: 'flex', alignItems: 'center' }}>
           <Form.Control
             type="text"
             placeholder="Search products"
@@ -100,13 +100,17 @@ const ViewProduct = () => {
             className="search-bar mb-2"
             style={{
               borderRadius: '25px',
-              marginTop: '50px',
-              width: '60%',
+              width: '100%',
               height: '50px',
               fontSize: '18px',
               border: '2px solid #FF9500',
             }}
           />
+        </Col>
+        <Col md={2} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Button variant="danger" onClick={handleLogout}>
+            Logout
+          </Button>
         </Col>
       </Row>
 
@@ -171,7 +175,6 @@ const ViewProduct = () => {
                   checked={selectedCategories.includes(category)}
                   onChange={() => handleCategoryChange(category)}
                   style={{ cursor: 'pointer' }}
-                  // Style the checkbox to be orange when checked
                   inputProps={{ style: { accentColor: '#FF9500' } }}
                 />
               ))}
@@ -198,7 +201,8 @@ const ViewProduct = () => {
               e.target.style.backgroundColor = 'white'; 
               e.target.style.color = '#FF9500';
             }}
-          >Add Product
+          >
+            Add Product
           </Button>
         </Col>
       </Row>

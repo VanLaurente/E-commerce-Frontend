@@ -61,6 +61,11 @@ const AddProduct = () => {
       .catch(() => setErrorMessage('There was an issue adding the product.'));
   };
 
+  // Function to handle cancellation
+  const handleCancel = () => {
+    navigate('/view'); // Redirect to ViewProduct.js
+  };
+
   return (
     <Container
       fluid
@@ -144,11 +149,20 @@ const AddProduct = () => {
         <Button
           variant="primary"
           type="submit"
-          className="w-100"
+          className="w-100 mb-2"
           style={{ background: '#FF9500', border: 'none', borderRadius: '25px' }}
           onClick={handleSubmit}
         >
           Add Product
+        </Button>
+
+        <Button
+          variant="secondary"
+          className="w-100"
+          style={{ borderRadius: '25px' }}
+          onClick={handleCancel}
+        >
+          Cancel
         </Button>
       </Card>
     </Container>
