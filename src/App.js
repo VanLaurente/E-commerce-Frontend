@@ -7,6 +7,7 @@ import EditProduct from './components/EditProduct';
 import ViewProduct from './components/ViewProduct';
 import FrontStore from './components/FrontStore';
 import ProductDetails from './components/ProductDetails';
+import Cart from './components/Cart';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/view" element={<ViewProduct />} />
                 <Route path="/frontstore" element={<FrontStore />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
+                <Route path="/cart" element={<Cart />} />
                 <Route path="*" element={<Navigate to="/" />} /> 
             </Routes>
         </Router>

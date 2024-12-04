@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Button, Alert } from 'react-bootstrap';
+import { Container, Card, Button, Alert, Modal, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import logo from '../logo/logo.png';
 
@@ -8,6 +8,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/api/products/${id}`)
@@ -25,7 +27,35 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    console.log(`Added product with ID: ${id} to cart`);
+    setShowModal(true); // Show modal to ask for quantity
+  };
+
+  const handleConfirmAddToCart = () => {
+    // Add product to cart logic
+    const cartItem = {
+      product_id: id,
+      quantity: parseInt(quantity, 10),
+    };
+
+    fetch('http://127.0.0.1:8000/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cartItem),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to add item to cart');
+        }
+        return response.json();
+      })
+      .then(() => {
+        alert('Product added to cart successfully!');
+        setShowModal(false); // Close the modal
+      })
+      .catch(error => {
+        console.error('Error adding item to cart:', error);
+        alert('Failed to add product to cart. Please try again.');
+      });
   };
 
   return (
@@ -94,6 +124,35 @@ const ProductDetail = () => {
           </div>
         </Card.Body>
       </Card>
+
+      {/* Quantity Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Enter Quantity</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="quantityInput">
+              <Form.Label>Quantity</Form.Label>
+              <Form.Control
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                min="1"
+                max={product.quantity || 1}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleConfirmAddToCart}>
+            Add to Cart
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
