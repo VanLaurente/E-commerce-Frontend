@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Button, Alert, Modal, Form } from 'react-bootstrap';
+import { Container, Card, Button, Modal, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import logo from '../logo/logo.png';
 
@@ -8,7 +8,8 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Success modal state
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    setShowModal(true); // Show modal to ask for quantity
+    setShowQuantityModal(true); // Show modal to ask for quantity
   };
 
   const handleConfirmAddToCart = () => {
@@ -49,12 +50,12 @@ const ProductDetail = () => {
         return response.json();
       })
       .then(() => {
-        alert('Product added to cart successfully!');
-        setShowModal(false); // Close the modal
+        setShowQuantityModal(false); // Close quantity modal
+        setShowSuccessModal(true); // Show success modal
       })
       .catch(error => {
         console.error('Error adding item to cart:', error);
-        alert('Failed to add product to cart. Please try again.');
+        setErrorMessage('Failed to add product to cart. Please try again.');
       });
   };
 
@@ -84,7 +85,7 @@ const ProductDetail = () => {
           <h5 className="text-center mb-3" style={{ fontWeight: 'bold', color: '#333' }}>
             {product.description || 'Product Details'}
           </h5>
-          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+          {errorMessage && <div className="text-danger">{errorMessage}</div>}
           <div style={{ fontSize: '14px', color: '#555' }}>
             <p>
               <strong>Barcode:</strong> {product.barcode || 'N/A'}
@@ -129,7 +130,7 @@ const ProductDetail = () => {
       </Card>
 
       {/* Quantity Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showQuantityModal} onHide={() => setShowQuantityModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Enter Quantity</Modal.Title>
         </Modal.Header>
@@ -148,11 +149,26 @@ const ProductDetail = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => setShowQuantityModal(false)}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleConfirmAddToCart}>
             Add to Cart
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Success!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Product added to cart successfully!</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowSuccessModal(false)}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

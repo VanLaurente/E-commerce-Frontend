@@ -11,6 +11,8 @@ const ViewProduct = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
   const navigate = useNavigate();
   const timerID = useRef(null);
 
@@ -49,9 +51,19 @@ const ViewProduct = () => {
     );
   };
 
+  const handleMinPriceChange = (e) => {
+    setMinPrice(e.target.value);
+  };
+
+  const handleMaxPriceChange = (e) => {
+    setMaxPrice(e.target.value);
+  };
+
   const filteredProducts = products.filter(product =>
     product.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedCategories.length === 0 || selectedCategories.includes(product.category))
+    (selectedCategories.length === 0 || selectedCategories.includes(product.category)) &&
+    (minPrice === '' || product.price >= Number(minPrice)) &&
+    (maxPrice === '' || product.price <= Number(maxPrice))
   );
 
   useEffect(() => {
@@ -187,6 +199,30 @@ const ViewProduct = () => {
                   inputProps={{ style: { accentColor: '#FF9500' } }}
                 />
               ))}
+            </Card.Body>
+          </Card>
+          {/* Price Range Filter moved here */}
+          <Card className="mt-3">
+            <Card.Body>
+              <Card.Title>Filter by Price</Card.Title>
+              <Form.Group>
+                <Form.Label>Min Price</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={minPrice}
+                  onChange={handleMinPriceChange}
+                  placeholder="Enter minimum price"
+                />
+              </Form.Group>
+              <Form.Group className="mt-2">
+                <Form.Label>Max Price</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={maxPrice}
+                  onChange={handleMaxPriceChange}
+                  placeholder="Enter maximum price"
+                />
+              </Form.Group>
             </Card.Body>
           </Card>
           <Button

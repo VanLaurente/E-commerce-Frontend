@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Card, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo/logo.png';
 
 const accounts = [
   { email: 'user1@gmail.com', password: 'password123' },
   { email: 'user2@gmail.com', password: 'password456' },
-]; 
+];
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [role, setRole] = useState('admin'); 
+  const [role, setRole] = useState('admin');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
@@ -22,12 +23,12 @@ const Login = () => {
 
     if (role === 'admin' && email === 'admin@gmail.com' && password === 'password123') {
       console.log('Admin login successful'); // Debug log
-      navigate('/view'); 
+      navigate('/view');
     } else if (role === 'user') {
       const account = accounts.find(acc => acc.email === email && acc.password === password);
       if (account) {
         console.log('User login successful'); // Debug log
-        navigate('/frontstore'); 
+        navigate('/frontstore');
       } else {
         setErrorMessage('Account does not exist. Please check your email and password.');
       }
@@ -39,10 +40,12 @@ const Login = () => {
   const handleRegister = (e) => {
     e.preventDefault();
     // Simulate registration for demonstration
-    alert(`User registered with email: ${email}`);
+    setShowModal(true); // Show the modal upon successful registration
     setEmail('');
     setPassword('');
   };
+
+  const handleCloseModal = () => setShowModal(false); // Close the modal
 
   return (
     <Container
@@ -113,6 +116,19 @@ const Login = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Modal for successful registration */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Registration Successful</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>User registered.</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

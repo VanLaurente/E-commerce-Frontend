@@ -101,42 +101,31 @@ const FrontStore = () => {
         return; // Don't proceed if quantity exceeds available stock
       }
   
-      // Check if the product is already in the cart
-      fetch('http://127.0.0.1:8000/api/cart')
-        .then((response) => response.json())
-        .then((cartItems) => {
-          const existingItem = cartItems.find(item => item.product_id === selectedProduct);
-  
-          if (existingItem) {
-            setErrorMessage('This item is already in the cart.'); // Show error message for duplicate item
-          } else {
-            // Proceed to add the product to the cart
-            fetch('http://127.0.0.1:8000/api/cart', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ product_id: selectedProduct, quantity: quantity }),
-            })
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error('Failed to add item to cart');
-                }
-                return response.json();
-              })
-              .then(() => {
-                setShowModal(false);
-                fetchCartItems(); // Update the cart count after adding an item
-              })
-              .catch((error) => {
-                console.error('Error adding item to cart:', error);
-                setErrorMessage('Failed to add item to cart. Please try again.');
-              });
-          }
-        })
-        .catch((error) => {
-          console.error('Error fetching cart data:', error);
-        });
+      // Proceed to add the product to the cart
+      fetch('http://127.0.0.1:8000/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: selectedProduct, quantity }),
+      })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(err.message || 'Failed to add item to cart');
+          });
+        }
+        return response.json();
+      })
+      .then(() => {
+        setShowModal(false);
+        fetchCartItems(); // Update the cart count after adding an item
+      })
+      .catch((error) => {
+        console.error('Error adding item to cart:', error);
+        setErrorMessage(error.message); // Show detailed error message
+      });
     }
   };
+  
   
 
   const handleLogout = () => {
@@ -200,7 +189,7 @@ const FrontStore = () => {
           <Card className="mt-0">
             <Card.Body>
               <Card.Title><strong>Filter Products</strong></Card.Title>
-              <Form.Label><strong>Filter by Category</strong></Form.Label>
+              <Card.Title>Filter by Category</Card.Title>
               {categories.map((category) => (
                 <Form.Check
                   type="checkbox"
@@ -212,7 +201,8 @@ const FrontStore = () => {
                 />
               ))}
               <Form.Group className="mb-2">
-                <Form.Label><strong>Min Price</strong></Form.Label>
+                <Card.Title>Filter by Price</Card.Title>
+                <Form.Label>Minimum Price</Form.Label>
                 <Form.Control
                   type="number"
                   value={minPrice}
@@ -221,7 +211,7 @@ const FrontStore = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-2">
-                <Form.Label><strong>Max Price</strong></Form.Label>
+                <Form.Label>Maximum Price</Form.Label>
                 <Form.Control
                   type="number"
                   value={maxPrice}
