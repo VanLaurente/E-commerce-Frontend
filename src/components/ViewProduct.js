@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Form, Button, Alert, Card, Table } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert, Card, Table, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import logo from '../logo/logo.png';
 
@@ -9,6 +9,8 @@ const ViewProduct = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
   const navigate = useNavigate();
   const timerID = useRef(null);
 
@@ -62,13 +64,18 @@ const ViewProduct = () => {
 
   // Delete button
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      fetch(`http://127.0.0.1:8000/api/products/${id}`, {
+    setProductToDelete(id);
+    setShowModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      fetch(`http://127.0.0.1:8000/api/products/${productToDelete}`, {
         method: 'DELETE',
       })
         .then(response => {
           if (response.ok) {
-            setProducts(products.filter(product => product.id !== id));
+            setProducts(products.filter(product => product.id !== productToDelete));
             console.log('Product deleted');
           } else {
             console.error('Error deleting the product');
@@ -78,6 +85,8 @@ const ViewProduct = () => {
           console.error('There was an error deleting the product!', error);
         });
     }
+    setShowModal(false);
+    setProductToDelete(null);
   };
 
   const handleLogout = () => {
@@ -206,6 +215,22 @@ const ViewProduct = () => {
           </Button>
         </Col>
       </Row>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this product?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

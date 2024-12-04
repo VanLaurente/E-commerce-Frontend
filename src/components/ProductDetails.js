@@ -95,6 +95,9 @@ const ProductDetail = () => {
             <p>
               <strong>Quantity Available:</strong> {product.quantity || 'N/A'}
             </p>
+            <p>
+              <strong>Category:</strong> {product.category || 'N/A'}
+            </p>
           </div>
           <div className="d-flex justify-content-between mt-4">
             <Button

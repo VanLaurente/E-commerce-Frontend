@@ -8,6 +8,7 @@ import ViewProduct from './components/ViewProduct';
 import FrontStore from './components/FrontStore';
 import ProductDetails from './components/ProductDetails';
 import Cart from './components/Cart';
+import Checkout from './components/Checkout';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
                 <Route path="/frontstore" element={<FrontStore />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="*" element={<Navigate to="/" />} /> 
             </Routes>
         </Router>

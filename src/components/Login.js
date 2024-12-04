@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../logo/logo.png';
 
 const accounts = [
-  { email: 'user1@example.com', password: 'password123' },
-  { email: 'user2@example.com', password: 'password456' },
+  { email: 'user1@gmail.com', password: 'password123' },
+  { email: 'user2@gmail.com', password: 'password456' },
 ]; 
 
 const Login = () => {

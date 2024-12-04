@@ -1,116 +1,146 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Form, Alert, Badge, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Alert, Badge, Modal, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FiShoppingCart } from 'react-icons/fi';
 import logo from '../logo/logo.png'; // Adjust based on your actual file structure
 
 const FrontStore = () => {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]); // State for categories derived from products
-  const [selectedCategories, setSelectedCategories] = useState([]); // Selected categories
-  const [minPrice, setMinPrice] = useState(''); // Minimum price
-  const [maxPrice, setMaxPrice] = useState(''); // Maximum price
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [cartCount, setCartCount] = useState(0);
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
-  const [selectedProduct, setSelectedProduct] = useState(null); // Selected product ID for adding to cart
-  const [quantity, setQuantity] = useState(1); // Quantity state
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
 
   // Fetch products
   useEffect(() => {
+    setLoading(true);
     fetch('http://127.0.0.1:8000/api/products')
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         setProducts(data);
-        
-        // Extract unique categories from products
-        const uniqueCategories = [...new Set(data.map(product => product.category))];
+        const uniqueCategories = [...new Set(data.map((product) => product.category))];
         setCategories(uniqueCategories);
+        setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching products:', error);
         setErrorMessage('Failed to load products. Please try again.');
+        setLoading(false);
       });
   }, []);
 
+  // Fetch cart items
+  const fetchCartItems = () => {
+    fetch('http://127.0.0.1:8000/api/cart')
+      .then((response) => response.json())
+      .then((cartItems) => {
+        const uniqueItemsCount = cartItems.filter((item) => item.quantity > 0).length; // Count unique items
+        setCartCount(uniqueItemsCount);
+      })
+      .catch((error) => console.error('Error fetching cart data:', error));
+  };
+
   // Fetch cart count
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/cart')
-      .then(response => response.json())
-      .then(cartItems => {
-        const count = cartItems.reduce((total, item) => total + item.quantity, 0);
-        setCartCount(count);
-      })
-      .catch(error => console.error('Error fetching cart data:', error));
-  }, []);
+    fetchCartItems();
+  }, []);  
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
   const handleCategoryChange = (category) => {
-    setSelectedCategories((prev) => 
-      prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
 
   // Filter products based on search term, selected categories, and price range
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearchTerm = product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategories.length > 0 ? selectedCategories.includes(product.category) : true;
     const matchesMinPrice = minPrice ? product.price >= parseFloat(minPrice) : true;
     const matchesMaxPrice = maxPrice ? product.price <= parseFloat(maxPrice) : true;
-
     return matchesSearchTerm && matchesCategory && matchesMinPrice && matchesMaxPrice;
   });
 
   const handleAddToCart = (productId) => {
     setSelectedProduct(productId);
-    setShowModal(true);
+    const product = products.find((p) => p.id === productId);
+    setQuantity(1); // Reset quantity to 1 when selecting a product
+    if (product) {
+      setShowModal(true);
+    }
   };
 
   const handleQuantityChange = (e) => {
-    setQuantity(Number(e.target.value));
+    const value = Number(e.target.value);
+    setQuantity(value > 0 ? value : 1); // Ensure quantity is at least 1
   };
 
   const handleConfirmAddToCart = () => {
-    fetch(`http://127.0.0.1:8000/api/cart`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id: selectedProduct, quantity: quantity }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to add item to cart');
-        }
-        return response.json();
-      })
-      .then(() => {
-        setShowModal(false);
-        setQuantity(1);
-        fetch('http://127.0.0.1:8000/api/cart')
-          .then(response => response.json())
-          .then(cartItems => {
-            const count = cartItems.reduce((total, item) => total + item.quantity, 0);
-            setCartCount(count);
-          })
-          .catch(error => console.error('Error fetching cart data:', error));
-      })
-      .catch(error => {
-        console.error('Error adding item to cart:', error);
-        setErrorMessage('Failed to add item to cart. Please try again.');
-      });
+    if (!selectedProduct) return;
+  
+    const product = products.find((p) => p.id === selectedProduct);
+    if (product) {
+      if (quantity > product.quantity) {
+        setErrorMessage('Quantity exceeds available stock.'); // Show error message for stock limit
+        return; // Don't proceed if quantity exceeds available stock
+      }
+  
+      // Check if the product is already in the cart
+      fetch('http://127.0.0.1:8000/api/cart')
+        .then((response) => response.json())
+        .then((cartItems) => {
+          const existingItem = cartItems.find(item => item.product_id === selectedProduct);
+  
+          if (existingItem) {
+            setErrorMessage('This item is already in the cart.'); // Show error message for duplicate item
+          } else {
+            // Proceed to add the product to the cart
+            fetch('http://127.0.0.1:8000/api/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ product_id: selectedProduct, quantity: quantity }),
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error('Failed to add item to cart');
+                }
+                return response.json();
+              })
+              .then(() => {
+                setShowModal(false);
+                fetchCartItems(); // Update the cart count after adding an item
+              })
+              .catch((error) => {
+                console.error('Error adding item to cart:', error);
+                setErrorMessage('Failed to add item to cart. Please try again.');
+              });
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching cart data:', error);
+        });
+    }
   };
+  
 
   const handleLogout = () => {
-    navigate('/'); // Redirect to the login page
+    navigate('/');
   };
 
   return (
@@ -138,7 +168,7 @@ const FrontStore = () => {
         <Col md={2} className="d-flex align-items-center justify-content-end">
           <Button
             variant="link"
-            onClick={() => navigate("/cart")}
+            onClick={() => navigate('/cart')}
             style={{ color: '#FF9500', position: 'relative' }}
           >
             <FiShoppingCart size={24} />
@@ -162,14 +192,15 @@ const FrontStore = () => {
         </Col>
       </Row>
 
+      {loading && <Spinner animation="border" variant="primary" />}
       {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
 
       <Row>
-        <Col md={3}>
+      <Col md={3}>
           <Card className="mt-0">
             <Card.Body>
-              <Card.Title>Filter Products</Card.Title>
-              <Card.Title>Filter by Category</Card.Title>
+              <Card.Title><strong>Filter Products</strong></Card.Title>
+              <Form.Label><strong>Filter by Category</strong></Form.Label>
               {categories.map((category) => (
                 <Form.Check
                   type="checkbox"
@@ -181,7 +212,7 @@ const FrontStore = () => {
                 />
               ))}
               <Form.Group className="mb-2">
-                <Form.Label>Min Price</Form.Label>
+                <Form.Label><strong>Min Price</strong></Form.Label>
                 <Form.Control
                   type="number"
                   value={minPrice}
@@ -190,7 +221,7 @@ const FrontStore = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-2">
-                <Form.Label>Max Price</Form.Label>
+                <Form.Label><strong>Max Price</strong></Form.Label>
                 <Form.Control
                   type="number"
                   value={maxPrice}
@@ -204,20 +235,23 @@ const FrontStore = () => {
         <Col md={9}>
           <Row>
             {filteredProducts.length === 0 && <Alert variant="danger">No products found.</Alert>}
-            {filteredProducts.map(product => (
+            {filteredProducts.map((product) => (
               <Col md={4} key={product.id} className="mb-3">
                 <Card>
                   <Card.Body>
                     <Card.Title>{product.description}</Card.Title>
                     <Card.Text>
                       <strong>Price:</strong> ₱{product.price}
+                      <br />
+                      <strong>Quantity Available:</strong> {product.quantity}
                     </Card.Text>
                     <Button
                       variant="primary"
+                      disabled={product.quantity === 0}
                       style={{ backgroundColor: '#FF9500', borderColor: '#FF9500' }}
                       onClick={() => handleAddToCart(product.id)}
                     >
-                      Add to Cart
+                      {product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
                     </Button>
                     <Button
                       variant="link"
@@ -234,28 +268,29 @@ const FrontStore = () => {
         </Col>
       </Row>
 
-      {/* Quantity Modal */}
+      {/* Modal for Adding to Cart */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Add to Cart</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group>
-            <Form.Label>Select Quantity</Form.Label>
-            <Form.Control
-              type="number"
-              value={quantity}
-              min="1"
-              onChange={handleQuantityChange}
-            />
-          </Form.Group>
+          <p>Enter the quantity to add to your cart:</p>
+          <Form.Control
+            type="number"
+            value={quantity}
+            onChange={handleQuantityChange}
+            min="1"
+            max={selectedProduct ? products.find((p) => p.id === selectedProduct).quantity : 1} // Set max to available quantity
+            placeholder="Quantity"
+          />
+          {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleConfirmAddToCart}>
-            Confirm
+            Add to Cart
           </Button>
         </Modal.Footer>
       </Modal>
