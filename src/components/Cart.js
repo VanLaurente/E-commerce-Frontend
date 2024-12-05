@@ -78,9 +78,20 @@ const Cart = () => {
     ? cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0).toFixed(2)
     : '0.00';
 
-  const handleCheckout = () => {
-    navigate('/checkout', { state: { cartItems } });
-  };
+    const handleCheckout = () => {
+      const hasDuplicates = cartItems.some((item, index) =>
+        cartItems.findIndex((otherItem) => otherItem.product_id === item.product_id) !== index
+      );
+    
+      if (hasDuplicates) {
+        setModalMessage('Your cart contains duplicate items. Please review and update your cart before proceeding.');
+        setShowModal(true);
+        return; // Prevent checkout if duplicates are found
+      }
+    
+      navigate('/checkout', { state: { cartItems } });
+    };
+    
 
   return (
     <Container fluid style={{ background: '#FF9500', padding: '20px' }}>
